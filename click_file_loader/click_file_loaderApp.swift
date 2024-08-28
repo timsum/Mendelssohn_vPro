@@ -14,6 +14,7 @@ struct click_file_loaderApp: App {
     @State private var avPlayerViewModel = AVPlayerViewModel()
     
     var body: some Scene {
+#if os(visionOS)
         WindowGroup {
             if avPlayerViewModel.isPlaying {
                 AVPlayerView(viewModel: avPlayerViewModel)
@@ -36,5 +37,21 @@ struct click_file_loaderApp: App {
                 }
         }
         .immersionStyle(selection: .constant(.full), in: .full)
+#endif
+        
+#if os(iOS)
+        WindowGroup(id: appModel.immersiveSpaceID) {
+            ImmersiveView()
+                .environment(appModel)
+                .onAppear {
+                    appModel.immersiveSpaceState = .open
+                    avPlayerViewModel.play()
+                }
+                .onDisappear {
+                    appModel.immersiveSpaceState = .closed
+                    avPlayerViewModel.reset()
+                }
+        }
+#endif
     }
 }

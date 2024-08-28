@@ -15,6 +15,11 @@ struct ImmersiveView: View {
     
     var body: some View {
         RealityView { content in
+#if os(iOS)
+            // MARK: On iOS, set up RealityView to use AR world tracking
+            await content.setupWorldTracking()
+            content.camera = .worldTracking
+#endif
 
             // this gets the list of strings...
 //            let fileNames:[String] = getAllFileNamesWithPrefix(in: "/Users/timsummers/MCO_VisionPro/click_file_loader/Mend", prefix: "")!
@@ -121,14 +126,15 @@ struct ImmersiveView: View {
             
             // Then add the initial RealityKit content
 
-            if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
+            let immersiveContentEntity = Entity()
+//            if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
                 content.add(immersiveContentEntity)
-            }
+//            }
             do {
                 // add fifty entities with spatial audio components.
                var i = 0
                 for filename in fileNames  {
-                    //if (i < 60) {
+                    if (i < 40) {
                         let randomVector = SIMD3<Float>(
                             Float.random(in: -1...1),
                             Float.random(in: 0...2),
@@ -147,7 +153,7 @@ struct ImmersiveView: View {
                         aEnt.playAudio(resrc)
                         content.add(aEnt)
                         i += 1
-                    //}
+                    }
                 }
             } catch {
                 print("Error loading winter vivarium model and/or audio: \(error.localizedDescription)")
@@ -178,8 +184,8 @@ struct ImmersiveView: View {
         }
     }
 }
-
-#Preview(immersionStyle: .full) {
-    ImmersiveView()
-        .environment(AppModel())
-}
+//
+//#Preview(immersionStyle: .full) {
+//    ImmersiveView()
+//        .environment(AppModel())
+//}
